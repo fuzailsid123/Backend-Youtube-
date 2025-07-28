@@ -291,8 +291,7 @@ const togglePublishStatus = asyncHandler(async(req,res) =>
     if (!toggleisPublished){
         throw new ApiError(400, "Invalid Video or Owner")
     }
-
-    // 3. toggle the isPUblished field of the video document
+ 
     toggleisPublished.isPublished = !toggleisPublished.isPublished
 
     await toggleisPublished.save()
