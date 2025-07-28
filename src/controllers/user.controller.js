@@ -19,7 +19,7 @@ const generateAccessAndRefreshTokens = async(userId) => {
         // console.log("✅ Access token generated");
         const refreshToken = user.generateRefreshToken()
         // console.log("✅ Refresh token generated");
-        user.refreshToken = refreshToken
+        user.refreshToken = refreshToken // To save refresh token in database
 
         await user.save({validateBeforeSave: false})
         // console.log("✅ Refresh token saved to user");
@@ -283,12 +283,27 @@ const updateUserAvatar = asyncHandler(async(req, res) => {
         throw new ApiError(400, "Avatar file is missing")
     }
 
-    //TODO: delete old image - assignment
+    const olduser = await User.findById(req.user?._id);
+
+    if (!olduser) {
+        throw new ApiError(404, "User not found");
+    }
+
+    if (olduser.avatar) {
+        const extractPublicId = (url) => {
+            const parts = url.split("/");
+            const lastPart = parts[parts.length - 1];
+            return lastPart.split(".")[0];
+        };
+
+        const oldPublicId = extractPublicId(olduser.avatar);
+        await deleteFromCloudinary(oldPublicId);
+    }
 
     const avatar = await uploadOnCloudinary(avatarLocalPath)
 
     if (!avatar.url) {
-        throw new ApiError(400, "Error while uploading on avatar")
+        throw new ApiError(400, "Error while uploading avatar")
         
     }
 
@@ -316,13 +331,28 @@ const updateUserCoverImage = asyncHandler(async(req, res) => {
         throw new ApiError(400, "Cover image file is missing")
     }
 
-    //TODO: delete old image - assignment
+    const olduser = await User.findById(req.user?._id);
+
+    if (!olduser) {
+        throw new ApiError(404, "User not found");
+    }
+
+    if (olduser.coverImage) {
+        const extractPublicId = (url) => {
+            const parts = url.split("/");
+            const lastPart = parts[parts.length - 1];
+            return lastPart.split(".")[0];
+        };
+
+        const oldPublicId = extractPublicId(olduser.coverImage);
+        await deleteFromCloudinary(oldPublicId);
+    }
 
 
     const coverImage = await uploadOnCloudinary(coverImageLocalPath)
 
     if (!coverImage.url) {
-        throw new ApiError(400, "Error while uploading on avatar")
+        throw new ApiError(400, "Error while uploading cover image")
         
     }
 
@@ -356,7 +386,7 @@ const getUserChannelProfile = asyncHandler(async(req, res) => {
                 username: username?.toLowerCase()
             }
         },
-        {
+        { 
             $lookup: {
                 from: "subscriptions",
                 localField: "_id",

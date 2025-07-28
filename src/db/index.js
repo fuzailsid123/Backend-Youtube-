@@ -6,7 +6,7 @@ const connectDB = async () => {
     try {
         const connectionInstance = await mongoose.connect(`${process.env.MONGODB_URI}/${DB_NAME}`)
         // console.log(`\n MongoDB connected !! DB HOST: ${connectionInstance.connection.host}`); //This tells you which server (host) the connection is usin
-        const { host, port, name } = connectionInstance.connection;
+        const { host, port, name } = connectionInstance.connection; //object destructuring to access specific properties
         console.log(`Connected to ${name} on ${host}:${port}`);
     } catch (error) {
         console.log("MONGODB connection FAILED ", error);
