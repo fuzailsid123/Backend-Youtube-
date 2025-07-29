@@ -123,7 +123,7 @@ const publishAVideo = asyncHandler(async (req,res) =>
 
 
         // create a video document in the database
-        const video = await Video.create( {
+        const video = await Video.create({
             title: title,
             description: description,
             thumbnail: Thumbnail?.url,
@@ -131,10 +131,10 @@ const publishAVideo = asyncHandler(async (req,res) =>
             duration: Video?.duration,
             isPUblished: true,
             Owner: req.user?._id
-        } )
+        })
 
         if (!video) {
-            throw new ApiError(400, "video Uploading failed")
+            throw new ApiError(400, "Video creation failed")
         }
 
         return res
@@ -242,7 +242,7 @@ const deleteVideo = asyncHandler( async ( req, res ) =>
         throw new ApiError( 400, "Invalid VideoID")
     }
 
-    const video = await Video.findById( videoId )
+    const video = await Video.findById(videoId)
     if (!video){ 
         throw new ApiError( 400, `No Video having id: ${videoId}`)
     }
